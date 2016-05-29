@@ -46,23 +46,43 @@ app.use(function(req, res, next) {
 
 
 //SETUP THE APPLICATION ITSELF
-Logger.log("Starting Platforms Server Side Rendering Engine");
+Logger.log("AV 1.0 A GO");
 
 //CONFIG THE MYSQL DB
 var config = require('./config.js');
 
-//INCLUDE THE ROUTES
-var server = require('./routes/SiteEngine.js');
+app.use(orm.express("mysql://"+config.username+":"+config.password+"@localhost/"+config.database, {
+
+  define:function(db,models){ 
+    db.settings.set('instance.cache', false);
+
+    db.load("./schema", function (err) {
+      models.email = db.models.email;
+    });
+
+    //RUN UPDATES FOR NEW COLUMNS
+    //this is the way we handle databse updates; any updates to the stucture to the db needs to be outlined here after 1st of oct
+    //EXAMPLE BELOW
+    //db.driver.execQuery("ALTER TABLE app ADD nav_view_logo_shown BIT(1) AFTER notes_add_button_color;",function(err,data){});
+    db.sync();
+  }
+}));
+
+app.get('/',function(req,res) {
+/*
+  var returnObjects = [];
+  news();
+  Logger.log("Permalink - "+req.url);
+
+  //test for perma in each area.
+  function news() {
+    req.models["news"].find({"app_id":req.params.id,"permalink":req.params.permalink}, function (err,items) {
+      returnObjects['news'] = items;
+      page();
+    });*/
 
 
-//VIEWING AREA
-app.get('/sitemap.xml',server.sitemap);
-app.get('/robots.txt',function(req,res) {
-  res.send("User-Agent: *")
-});
-app.get('/getmesomestyles.css',server.getStyles);
-
-app.get('/*',server.viewSite);
+ });
 
 
 app.listen(config.port);

@@ -3,9 +3,9 @@ exports.username = "root";
 
 exports.password = "Lok5eCGQ";
 
-exports.database = "staging";
+exports.database = "jackz";
 
-exports.port = "1338";
+exports.port = "1337";
 
 exports.base =__dirname;
 
