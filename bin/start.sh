@@ -7,4 +7,4 @@ cd /opt/production/
 npm install
 
 #start node
-sudo node /opt/production/server.js
+sudo node /opt/production/index.js

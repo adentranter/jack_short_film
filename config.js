@@ -1,9 +1,9 @@
 //EXAMPLE CONFIG
 exports.username = "root";
 
-exports.password = "Lok5eCGQ";
+exports.password = "password";
 
-exports.database = "jackz";
+exports.database = "database1";
 
 exports.port = "1337";
 
