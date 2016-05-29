@@ -1,0 +1,45 @@
+{
+  "name": "jack_short_film",
+  "version": "1.0.0",
+  "description": "Anti Viral Video Player",
+  "main": "index.js",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "dependencies": {
+    "chai": "^3.5.0",
+    "async": "",
+    "bcrypt": "",
+    "express": "3.x",
+    "express-jwt": "x",
+    "express-ls-routes": "",
+    "jsonwebtoken": "",
+    "lwip": "",
+    "moment": "",
+    "mysql": "2.0.0-alpha7",
+    "nodemailer": "0.7.*",
+    "orm": "2.1.x",
+    "rekuire": "",
+    "request": "",
+    "request-json": "^0.5.5",
+    "sleep": "",
+    "underscore": ""
+  },
+  "devDependencies": {
+    "mocha": "^2.5.3"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adentranter/jack_short_film.git"
+  },
+  "author": "Aden Tranter",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adentranter/jack_short_film/issues"
+  },
+  "homepage": "https://github.com/adentranter/jack_short_film"
+}

@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /composer.json
+Disallow: /example_config.php
+Disallow: /paypal.php
+Disallow: /ipn.php
+Disallow: /views/
+Disallow: /vendor/
+Disallow: /models/
+Disallow: /config/
+Disallow: /cert/
+Disallow: /assets/
