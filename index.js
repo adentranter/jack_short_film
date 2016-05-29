@@ -7,12 +7,12 @@ var orm = require('orm');
 var jwt = require('express-jwt');
 global.rekuire = require('rekuire');
 var Logger = rekuire('Logging');
+var email = rekuire('Email');
 var config = rekuire('config.js');
-var Logger = rekuire('Logging');
 var _ = require("underscore");
 var fs = require("fs");
 var request = require('request-json');
-process.env.TZ = 'Africa/Abidjan';
+//process.env.TZ = 'Africa/Abidjan';
 
 //SETUP THE EXPRESS ENGINE TO HANDLE CROSS ORIGIN REQUEST
 app.use(express.static(__dirname + '/public'));
@@ -107,25 +107,73 @@ app.get('/',function(req,res) {
 
 });
 
-app.get('/cron',function(req,res) {
-    /*
-       var returnObjects = [];
-       news();
-       Logger.log("Permalink - "+req.url);
+app.post('/', function(req,res) {
+  var email = req.body.email;
+  var myself = this;
+  var newItem = {};
+  newItem.last_updated = new Date();
 
-    //test for perma in each area.
-    function news() {
-    req.models["news"].find({"app_id":req.params.id,"permalink":req.params.permalink}, function (err,items) {
-    returnObjects['news'] = items;
-    page();
-    });*/
+  //add in created
+  newItem["created"]= new Date();
+  newItem["email"]= email;
+  newItem["hash"]=String(newItem["email"]).hashCode();
+
+  // get the last dude and work out datetime for start and end.
+  req.models["email"].find(null,null,null,"-created", function (err,items) {  
+
+    if (items.length > 0) {
+      var end = new Date(items[0]["viewing_end"].getTime() + 3*60000);
+      newItem["viewing_start"] = items[0]["viewing_end"];
+      newItem["viewing_end"] = end;
+    }else {
+      newItem["viewing_start"]= new Date();
+      newItem["viewing_end"]= new Date(newItem["viewing_start"].getTime() + 5*60000);
+    }
+
+    //check if old date
+    if (new Date() > newItem["viewing_start"] ) {
+      newItem["viewing_start"] = new Date().getTime() + 5*60000;
+      console.log(new Date().getTime() + 5*60000);
+
+      newItem["viewing_end"]= new Date(newItem["viewing_start"].getTime() + 3*60000);
+    }
+
+
+
+
+    req.models["email"].create(newItem, function (err, item) {
+      // err - description of the error or null
+      // items - array of inserted items
+      res.send(200);
+    }); 
+  });
+});
+
+app.get('/cron',function(req,res) {
   Logger.log("Cron motherfucker");
-  var page = compileTpl("views/tpl/docheader.html")+compileTpl("views/index.html")+ compileTpl("views/tpl/docfooter.html");
-  res.send(page);
+  var startRange,endRange;
+  startRange = new Date();
+  endRange = new Date().getTime() -5*60000; 
+
+  //pull all items that are within 2 mins of being 5 mins away frmo start time.
+  req.models["email"].find(null,null,null,"-created", function (err,items) {  
+    if (!err) {
+      items.forEach(function(item) {
+        if (item["viewing_start"] > startRange) {
+          Logger.log("email" + item['email']);
+          //EMAIL
+          res.send(200);
+        }
+      });
+    }else {
+      res.send(501);
+    }
+  });
+
 });
 
 app.get('/view/:code',function(req,res) {
-    /*
+  /*
        var returnObjects = [];
        news();
        Logger.log("Permalink - "+req.url);
@@ -145,3 +193,14 @@ app.get('/view/:code',function(req,res) {
 
 app.listen(config.port);
 
+
+String.prototype.hashCode = function() {
+  var hash = 0, i, chr, len;
+  if (this.length === 0) return hash;
+  for (i = 0, len = this.length; i < len; i++) {
+    chr   = this.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
