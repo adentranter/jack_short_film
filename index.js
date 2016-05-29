@@ -120,22 +120,28 @@ app.post('/', function(req,res) {
 
   // get the last dude and work out datetime for start and end.
   req.models["email"].find(null,null,null,"-created", function (err,items) {  
+    Logger.log("items array");
 
     if (items.length > 0) {
+      Logger.log("next in line");
       var end = new Date(items[0]["viewing_end"].getTime() + 3*60000);
       newItem["viewing_start"] = items[0]["viewing_end"];
       newItem["viewing_end"] = end;
     }else {
+      Logger.log("current date");
       newItem["viewing_start"]= new Date();
       newItem["viewing_end"]= new Date(newItem["viewing_start"].getTime() + 5*60000);
+
     }
 
     //check if old date
     if (new Date() > newItem["viewing_start"] ) {
+      Logger.log("old Date");
       newItem["viewing_start"] = new Date().getTime() + 5*60000;
-      console.log(new Date().getTime() + 5*60000);
-
-      newItem["viewing_end"]= new Date(newItem["viewing_start"].getTime() + 3*60000);
+      if (newItem["viewing_start"]) {
+        var newDateTime = new Date(newItem["viewing_start"]).setMinutes(new Date(newItem["viewing_start"]).getMinutes() + 3);
+        newItem["viewing_end"]= newDateTime;
+      }
     }
 
 
@@ -144,7 +150,9 @@ app.post('/', function(req,res) {
     req.models["email"].create(newItem, function (err, item) {
       // err - description of the error or null
       // items - array of inserted items
-      res.send(200);
+      Logger.log("Added Email");
+
+      //res.send(200);
     }); 
   });
 });
@@ -158,12 +166,24 @@ app.get('/cron',function(req,res) {
   //pull all items that are within 2 mins of being 5 mins away frmo start time.
   req.models["email"].find(null,null,null,"-created", function (err,items) {  
     if (!err) {
-      items.forEach(function(item) {
-        if (item["viewing_start"] > startRange) {
+      items.forEach(function(item,index) {
+        console.log(items);
+        console.log(new Date(item["viewing_start"]));
+        console.log(startRange);
+
+        if (new Date(item["viewing_start"]) < endRange && new Date(item["viewing_start"] > startRange)) {
+          console.log('asdf');
           Logger.log("email" + item['email']);
+
           //EMAIL
+          email.sendFiveWarning(req,res,item["email"]);
+          Logger.log("Calling Email Code");
+        }
+
+        if (index == items.length-1) {
           res.send(200);
         }
+
       });
     }else {
       res.send(501);
